@@ -164,7 +164,7 @@ type Win32_PerfRawData_Tcpip_TCPv4 struct {
 }
 
 func (c *TCPCollector) collect(ch chan<- prometheus.Metric) (*prometheus.Desc, error) {
-	var dst Win32_PerfRawData_Tcpip_TCPv4
+	var dst []Win32_PerfRawData_Tcpip_TCPv4
 
 	q := wmi.CreateQuery(&dst, "")
 	if err := wmi.Query(q, &dst); err != nil {
@@ -175,77 +175,77 @@ func (c *TCPCollector) collect(ch chan<- prometheus.Metric) (*prometheus.Desc, e
 	ch <- prometheus.MustNewConstMetric(
 		c.ConnectionFailures,
 		prometheus.CounterValue,
-		float64(dst.ConnectionFailures),
+		float64(dst[0].ConnectionFailures),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.ConnectionsActive,
 		prometheus.CounterValue,
-		float64(dst.ConnectionsActive),
+		float64(dst[0].ConnectionsActive),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.ConnectionsEstablished,
 		prometheus.CounterValue,
-		float64(dst.ConnectionsEstablished),
+		float64(dst[0].ConnectionsEstablished),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.ConnectionsPassive,
 		prometheus.CounterValue,
-		float64(dst.ConnectionsPassive),
+		float64(dst[0].ConnectionsPassive),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.ConnectionsReset,
 		prometheus.CounterValue,
-		float64(dst.ConnectionsReset),
+		float64(dst[0].ConnectionsReset),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.FrequencyObject,
 		prometheus.CounterValue,
-		float64(dst.Frequency_Object),
+		float64(dst[0].Frequency_Object),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.FrequencyPerfTime,
 		prometheus.CounterValue,
-		float64(dst.Frequency_PerfTime),
+		float64(dst[0].Frequency_PerfTime),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.FrequencySys100NS,
 		prometheus.CounterValue,
-		float64(dst.Frequency_Sys100NS),
+		float64(dst[0].Frequency_Sys100NS),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.SegmentsPerSec,
 		prometheus.CounterValue,
-		float64(dst.SegmentsPersec),
+		float64(dst[0].SegmentsPersec),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.SegmentsReceivedPerSec,
 		prometheus.CounterValue,
-		float64(dst.SegmentsReceivedPersec),
+		float64(dst[0].SegmentsReceivedPersec),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.SegmentsRetransmittedPerSec,
 		prometheus.CounterValue,
-		float64(dst.SegmentsRetransmittedPersec),
+		float64(dst[0].SegmentsRetransmittedPersec),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.SegmentsSentPerSec,
 		prometheus.CounterValue,
-		float64(dst.SegmentsSentPersec),
+		float64(dst[0].SegmentsSentPersec),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.TimestampObject,
 		prometheus.CounterValue,
-		float64(dst.Timestamp_Object),
+		float64(dst[0].Timestamp_Object),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.TimestampPerfTime,
 		prometheus.CounterValue,
-		float64(dst.Timestamp_PerfTime),
+		float64(dst[0].Timestamp_PerfTime),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.TimestampSys100NS,
 		prometheus.CounterValue,
-		float64(dst.Timestamp_Sys100NS),
+		float64(dst[0].Timestamp_Sys100NS),
 	)
 
 	return nil, nil
