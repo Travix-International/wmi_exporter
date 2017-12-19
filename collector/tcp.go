@@ -17,21 +17,15 @@ func init() {
 
 // A TCPCollector is a Prometheus collector for WMI Win32_PerfRawData_Tcpip_TCPv4 metrics
 type TCPCollector struct {
-	ConnectionFailures          *prometheus.Desc
-	ConnectionsActive           *prometheus.Desc
-	ConnectionsEstablished      *prometheus.Desc
-	ConnectionsPassive          *prometheus.Desc
-	ConnectionsReset            *prometheus.Desc
-	FrequencyObject             *prometheus.Desc
-	FrequencyPerfTime           *prometheus.Desc
-	FrequencySys100NS           *prometheus.Desc
-	SegmentsPerSec              *prometheus.Desc
-	SegmentsReceivedPerSec      *prometheus.Desc
-	SegmentsRetransmittedPerSec *prometheus.Desc
-	SegmentsSentPerSec          *prometheus.Desc
-	TimestampObject             *prometheus.Desc
-	TimestampPerfTime           *prometheus.Desc
-	TimestampSys100NS           *prometheus.Desc
+	ConnectionFailures         *prometheus.Desc
+	ConnectionsActive          *prometheus.Desc
+	ConnectionsEstablished     *prometheus.Desc
+	ConnectionsPassive         *prometheus.Desc
+	ConnectionsReset           *prometheus.Desc
+	SegmentsTotal              *prometheus.Desc
+	SegmentsReceivedTotal      *prometheus.Desc
+	SegmentsRetransmittedTotal *prometheus.Desc
+	SegmentsSentTotal          *prometheus.Desc
 }
 
 // NewTCPCollector ...
@@ -69,63 +63,27 @@ func NewTCPCollector() (Collector, error) {
 			nil,
 			nil,
 		),
-		FrequencyObject: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "frequency_object"),
-			"(TCP.FrequencyObject)",
+		SegmentsTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "segments_total"),
+			"(TCP.SegmentsTotal)",
 			nil,
 			nil,
 		),
-		FrequencyPerfTime: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "frequency_perftime"),
-			"(TCP.FrequencyPerfTime)",
+		SegmentsReceivedTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "segments_received_total"),
+			"(TCP.SegmentsReceivedTotal)",
 			nil,
 			nil,
 		),
-		FrequencySys100NS: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "frequency_sys100ns"),
-			"(TCP.FrequencySys100NS)",
+		SegmentsRetransmittedTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "segments_retransmitted_total"),
+			"(TCP.SegmentsRetransmittedTotal)",
 			nil,
 			nil,
 		),
-		SegmentsPerSec: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "segments_per_sec"),
-			"(TCP.SegmentsPerSec)",
-			nil,
-			nil,
-		),
-		SegmentsReceivedPerSec: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "segments_received_per_sec"),
-			"(TCP.SegmentsReceivedPerSec)",
-			nil,
-			nil,
-		),
-		SegmentsRetransmittedPerSec: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "segments_retransmitted_per_sec"),
-			"(TCP.SegmentsRetransmittedPerSec)",
-			nil,
-			nil,
-		),
-		SegmentsSentPerSec: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "segments_sent_per_sec"),
-			"(TCP.SegmentsSentPerSec)",
-			nil,
-			nil,
-		),
-		TimestampObject: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "timestamp_object"),
-			"(TCP.TimestampObject)",
-			nil,
-			nil,
-		),
-		TimestampPerfTime: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "timestamp_perftime"),
-			"(TCP.TimestampPerfTime)",
-			nil,
-			nil,
-		),
-		TimestampSys100NS: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "timestamp_sys100ns"),
-			"(TCP.TimestampSys100NS)",
+		SegmentsSentTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "segments_sent_total"),
+			"(TCP.SegmentsSentTotal)",
 			nil,
 			nil,
 		),
@@ -148,16 +106,10 @@ type Win32_PerfRawData_Tcpip_TCPv4 struct {
 	ConnectionsEstablished      uint64
 	ConnectionsPassive          uint64
 	ConnectionsReset            uint64
-	Frequency_Object            uint64
-	Frequency_PerfTime          uint64
-	Frequency_Sys100NS          uint64
 	SegmentsPersec              uint64
 	SegmentsReceivedPersec      uint64
 	SegmentsRetransmittedPersec uint64
 	SegmentsSentPersec          uint64
-	Timestamp_Object            uint64
-	Timestamp_PerfTime          uint64
-	Timestamp_Sys100NS          uint64
 }
 
 func (c *TCPCollector) collect(ch chan<- prometheus.Metric) (*prometheus.Desc, error) {
@@ -168,7 +120,7 @@ func (c *TCPCollector) collect(ch chan<- prometheus.Metric) (*prometheus.Desc, e
 		return nil, err
 	}
 
-	// Counters
+	// Counters and gauges
 	ch <- prometheus.MustNewConstMetric(
 		c.ConnectionFailures,
 		prometheus.CounterValue,
@@ -195,54 +147,24 @@ func (c *TCPCollector) collect(ch chan<- prometheus.Metric) (*prometheus.Desc, e
 		float64(dst[0].ConnectionsReset),
 	)
 	ch <- prometheus.MustNewConstMetric(
-		c.FrequencyObject,
-		prometheus.CounterValue,
-		float64(dst[0].Frequency_Object),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.FrequencyPerfTime,
-		prometheus.CounterValue,
-		float64(dst[0].Frequency_PerfTime),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.FrequencySys100NS,
-		prometheus.CounterValue,
-		float64(dst[0].Frequency_Sys100NS),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.SegmentsPerSec,
+		c.SegmentsTotal,
 		prometheus.CounterValue,
 		float64(dst[0].SegmentsPersec),
 	)
 	ch <- prometheus.MustNewConstMetric(
-		c.SegmentsReceivedPerSec,
+		c.SegmentsReceivedTotal,
 		prometheus.CounterValue,
 		float64(dst[0].SegmentsReceivedPersec),
 	)
 	ch <- prometheus.MustNewConstMetric(
-		c.SegmentsRetransmittedPerSec,
+		c.SegmentsRetransmittedTotal,
 		prometheus.CounterValue,
 		float64(dst[0].SegmentsRetransmittedPersec),
 	)
 	ch <- prometheus.MustNewConstMetric(
-		c.SegmentsSentPerSec,
+		c.SegmentsSentTotal,
 		prometheus.CounterValue,
 		float64(dst[0].SegmentsSentPersec),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.TimestampObject,
-		prometheus.CounterValue,
-		float64(dst[0].Timestamp_Object),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.TimestampPerfTime,
-		prometheus.CounterValue,
-		float64(dst[0].Timestamp_PerfTime),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.TimestampSys100NS,
-		prometheus.CounterValue,
-		float64(dst[0].Timestamp_Sys100NS),
 	)
 
 	return nil, nil
